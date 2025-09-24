@@ -6,6 +6,7 @@ import { IdeaModel, ModelStatus } from './entities/idea-model.entity';
 import { CreateIdeaDto } from './dtos/create-idea.dto'
 import { UpdateIdeaDto } from './dtos/update-idea.dto';
 import { User } from 'src/users/entities/user.entity';
+import { AIService } from '../shared/services/ai.service';
 
 @Injectable()
 export class IdeasService {
@@ -14,6 +15,7 @@ export class IdeasService {
         private ideasRepository: Repository<Idea>,
         @InjectRepository(IdeaModel)
         private ideaModelsRepository: Repository<IdeaModel>,
+        private aiService: AIService,
     ) { }
 
 
@@ -32,10 +34,11 @@ export class IdeasService {
 
         const savedIdea = await this.ideasRepository.save(newIdea);
 
-        // MVP: Generate 2-3 placeholder models immediately
-        await this.generatePlaceholderModels(savedIdea);
+        // Generate AI-powered business models
+        await this.generateAIModels(savedIdea);
 
-        return savedIdea;
+        // Return the idea with the generated models
+        return this.findOne(savedIdea.id, user.id);
     }
 
     async findAllByUser(userId: string): Promise<Idea[]> {
@@ -84,6 +87,38 @@ export class IdeasService {
     }
 
     // --- IdeaModel specific methods ---
+
+    private async generateAIModels(idea: Idea): Promise<void> {
+        try {
+            // Use AI to generate personalized business models
+            const businessModels = await this.aiService.generateBusinessModels({
+                title: idea.title,
+                description: idea.description,
+                category: idea.category,
+                location: idea.location,
+                budget: idea.budget
+            });
+
+            // Create IdeaModel entities from AI response
+            const ideaModels = businessModels.map(model =>
+                this.ideaModelsRepository.create({
+                    name: model.name,
+                    summary: model.summary,
+                    visualData: model.visualData,
+                    taskChecklist: model.taskChecklist,
+                    roadmap: model.roadmap,
+                    idea: idea,
+                    ideaId: idea.id,
+                }),
+            );
+
+            await this.ideaModelsRepository.save(ideaModels);
+        } catch (error) {
+            console.error('AI model generation failed, using fallback:', error);
+            // Fallback to placeholder models if AI fails
+            await this.generatePlaceholderModels(idea);
+        }
+    }
 
     private async generatePlaceholderModels(idea: Idea): Promise<void> {
         const modelsData = [

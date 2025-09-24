@@ -11,17 +11,15 @@ import { IdeasModule } from './ideas/ideas.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get<string>('DB_URL'),
-        // host: configService.get<string>('DB_HOST'),
-        // port: +configService.get('DB_PORT'),
-        // username: configService.get<string>('DB_USER'),
-        // password: configService.get<string>('DB_PASSWORD'),
-        // database: configService.get<string>('DB_NAME'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get<string>('NODE_ENV') === 'development',
-      }),
+      useFactory: (configService: ConfigService) => {
+        return {
+          type: 'postgres',
+          url: configService.get<string>('DB_URL'),
+          ssl: { rejectUnauthorized: false },
+          autoLoadEntities: true,
+          synchronize: configService.get<string>('NODE_ENV') === 'development',
+        };
+      },
     }),
     UsersModule,
     AuthModule,
@@ -30,4 +28,4 @@ import { IdeasModule } from './ideas/ideas.module';
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}
