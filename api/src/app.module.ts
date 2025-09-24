@@ -12,24 +12,12 @@ import { McpModule, McpTransportType } from '@rekog/mcp-nest';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-<<<<<<< Updated upstream
-      useFactory: (configService: ConfigService) => {
-        return {
-          type: 'postgres',
-          url: configService.get<string>('DB_URL'),
-          ssl: { rejectUnauthorized: false },
-          autoLoadEntities: true,
-          synchronize: configService.get<string>('NODE_ENV') === 'development',
-        };
-      },
-=======
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get<string>('DB_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get<string>('NODE_ENV') === 'development',
       }),
->>>>>>> Stashed changes
     }),
     UsersModule,
     AuthModule,
@@ -46,4 +34,4 @@ import { McpModule, McpTransportType } from '@rekog/mcp-nest';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }
