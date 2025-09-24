@@ -49,6 +49,15 @@ export class IdeasService {
         });
     }
 
+    async findAllByUserEmail(email: string): Promise<Idea[]> {
+        return this.ideasRepository.createQueryBuilder('idea')
+            .leftJoinAndSelect('idea.models', 'model')
+            .leftJoin('idea.user', 'user')
+            .where('user.email = :email', { email })
+            .orderBy('idea.createdAt', 'DESC')
+            .getMany();
+    }
+
     async findOne(id: string, userId: string): Promise<Idea> {
         const idea = await this.ideasRepository.findOne({
             where: { id, userId },

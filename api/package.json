@@ -20,7 +20,11 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+<<<<<<< Updated upstream
     "@google/generative-ai": "^0.24.1",
+=======
+    "@modelcontextprotocol/sdk": "^1.18.1",
+>>>>>>> Stashed changes
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -30,6 +34,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
     "@nestjs/typeorm": "^11.0.0",
+    "@rekog/mcp-nest": "^1.8.3",
     "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
@@ -40,7 +45,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.27"
+    "typeorm": "^0.3.27",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

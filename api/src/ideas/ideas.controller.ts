@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Patch, Body, Param, Delete, UseGuards, Request, UploadedFiles, UseInterceptors, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiConsumes, ApiQuery } from '@nestjs/swagger';
 import { IdeasService } from './ideas.service';
 import { CreateIdeaDto } from './dtos/create-idea.dto';
 import { UpdateIdeaDto } from './dtos/update-idea.dto';
@@ -19,37 +20,59 @@ const multerStorage = diskStorage({
     },
 });
 
+@ApiTags('ideas')
+@ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('ideas')
 export class IdeasController {
     constructor(private readonly ideasService: IdeasService) { }
 
     @Post()
+    @ApiOperation({ summary: 'Create a new business idea' })
+    @ApiBody({ type: CreateIdeaDto })
+    @ApiResponse({ status: 201, description: 'The created idea.' })
     async create(@Body() createIdeaDto: CreateIdeaDto, @Request() req) {
         return this.ideasService.create(createIdeaDto, req.user);
     }
 
     @Get()
+    @ApiOperation({ summary: 'Get all ideas for the authenticated user' })
+    @ApiResponse({ status: 200, description: 'List of ideas.' })
     async findAll(@Request() req) {
         return this.ideasService.findAllByUser(req.user.id);
     }
 
     @Get(':id')
+    @ApiOperation({ summary: 'Get a single idea by ID' })
+    @ApiParam({ name: 'id', description: 'Idea ID' })
+    @ApiResponse({ status: 200, description: 'The found idea.' })
     async findOne(@Param('id') id: string, @Request() req) {
         return this.ideasService.findOne(id, req.user.id);
     }
 
     @Patch(':id')
+    @ApiOperation({ summary: 'Update an idea by ID' })
+    @ApiParam({ name: 'id', description: 'Idea ID' })
+    @ApiBody({ type: UpdateIdeaDto })
+    @ApiResponse({ status: 200, description: 'The updated idea.' })
     async update(@Param('id') id: string, @Body() updateIdeaDto: UpdateIdeaDto, @Request() req) {
         return this.ideasService.update(id, req.user.id, updateIdeaDto);
     }
 
     @Delete(':id')
+    @ApiOperation({ summary: 'Delete an idea by ID' })
+    @ApiParam({ name: 'id', description: 'Idea ID' })
+    @ApiResponse({ status: 200, description: 'Idea deleted.' })
     async remove(@Param('id') id: string, @Request() req) {
         return this.ideasService.remove(id, req.user.id);
     }
 
     @Post(':id/upload-images')
+    @ApiOperation({ summary: 'Upload images for an idea' })
+    @ApiParam({ name: 'id', description: 'Idea ID' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ schema: { type: 'object', properties: { files: { type: 'string', format: 'binary' } } } })
+    @ApiResponse({ status: 201, description: 'Images uploaded.' })
     @UseInterceptors(FilesInterceptor('files', 5, { storage: multerStorage }))
     async uploadImages(
         @Param('id') id: string,
@@ -68,6 +91,11 @@ export class IdeasController {
     }
 
     @Post(':id/upload-pdf')
+    @ApiOperation({ summary: 'Upload a PDF for an idea' })
+    @ApiParam({ name: 'id', description: 'Idea ID' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ schema: { type: 'object', properties: { files: { type: 'string', format: 'binary' } } } })
+    @ApiResponse({ status: 201, description: 'PDF uploaded.' })
     @UseInterceptors(FilesInterceptor('files', 1, { storage: multerStorage }))
     async uploadPdf(
         @Param('id') id: string,
@@ -89,6 +117,11 @@ export class IdeasController {
     }
 
     @Post(':id/upload-audio')
+    @ApiOperation({ summary: 'Upload an audio file for an idea' })
+    @ApiParam({ name: 'id', description: 'Idea ID' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ schema: { type: 'object', properties: { files: { type: 'string', format: 'binary' } } } })
+    @ApiResponse({ status: 201, description: 'Audio uploaded.' })
     @UseInterceptors(FilesInterceptor('files', 1, { storage: multerStorage }))
     async uploadAudio(
         @Param('id') id: string,
